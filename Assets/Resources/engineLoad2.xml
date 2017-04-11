@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<FUNCTION_BLOCK>
+  <VAR_INPUT NAME="throttle" TYPE="REAL" RANGE="0 100" />
+  <VAR_INPUT NAME="rpm" TYPE="REAL" RANGE="-100 10000" />
+  <VAR_OUTPUT NAME="load" TYPE="REAL" RANGE="-100 150" />
+  <FUZZIFY NAME="throttle">
+    <TERM NAME="verylow" POINTS="0 0 0 25" />
+    <TERM NAME="low" POINTS="0 25 25 50" />
+    <TERM NAME="mid" POINTS="25 50 50 75" />
+    <TERM NAME="high" POINTS="50 75 75 100" />
+    <TERM NAME="veryhigh" POINTS="75 100 100 100" />
+  </FUZZIFY>
+  <FUZZIFY NAME="rpm">
+    <TERM NAME="low" POINTS="900 1500 1500 5000" />
+    <TERM NAME="mid" POINTS="999 5000 5000 10000" />
+    <TERM NAME="high" POINTS="5000 10000 10000 10000" />
+    <TERM NAME="idle" POINTS="700 900 900 1100" />
+    <TERM NAME="idletoolow" POINTS="-100 400 400 900" />
+    <TERM NAME="idletoohigh" POINTS="900 1100 1100 1250" />
+  </FUZZIFY>
+  <DEFUZZIFY METHOD="CoG" ACCU="MAX" NAME="load">
+    <TERM NAME="fastdecreasing" POINTS="-100 -90 -90 -50" />
+    <TERM NAME="between" POINTS="-10 30 30 80" />
+    <TERM NAME="fastincreasing" POINTS="70 90 90 140" />
+    <TERM NAME="decreasing" POINTS="-70 -30 -30 10" />
+    <TERM NAME="increasing" POINTS="30 70 70 100" />
+    <TERM NAME="turbo" POINTS="90 140 140 150" />
+    <TERM NAME="zero" POINTS="-10 0 0 10" />
+    <TERM NAME="slightincreasing" POINTS="0 5 5 10" />
+    <TERM NAME="slightdecreasing" POINTS="-10 -5 -5 0" />
+  </DEFUZZIFY>
+  <RULEBLOCK AND="MIN" OR="MAX">
+    <RULE NUMBER="1" TEXT="IF (throttle IS verylow) AND (rpm IS low) THEN load IS decreasing" />
+    <RULE NUMBER="2" TEXT="IF (throttle IS low) AND (rpm IS low) THEN load IS between" />
+    <RULE NUMBER="3" TEXT="IF (throttle IS mid) AND (rpm IS low) THEN load IS increasing" />
+    <RULE NUMBER="4" TEXT="IF (throttle IS high) AND (rpm IS low) THEN load IS increasing" />
+    <RULE NUMBER="5" TEXT="IF (throttle IS veryhigh) AND (rpm IS low) THEN load IS increasing" />
+    <RULE NUMBER="6" TEXT="IF (throttle IS verylow) AND (rpm IS mid) THEN load IS fastdecreasing" />
+    <RULE NUMBER="7" TEXT="IF (throttle IS low) AND (rpm IS mid) THEN load IS decreasing" />
+    <RULE NUMBER="8" TEXT="IF (throttle IS mid) AND (rpm IS mid) THEN load IS increasing" />
+    <RULE NUMBER="9" TEXT="IF (throttle IS high) AND (rpm IS mid) THEN load IS increasing" />
+    <RULE NUMBER="10" TEXT="IF (throttle IS veryhigh) AND (rpm IS mid) THEN load IS fastincreasing" />
+    <RULE NUMBER="11" TEXT="IF (throttle IS verylow) AND (rpm IS high) THEN load IS fastdecreasing" />
+    <RULE NUMBER="12" TEXT="IF (throttle IS mid) AND (rpm IS high) THEN load IS between" />
+    <RULE NUMBER="13" TEXT="IF (throttle IS high) AND (rpm IS high) THEN load IS increasing" />
+    <RULE NUMBER="14" TEXT="IF (throttle IS veryhigh) AND (rpm IS high) THEN load IS turbo" />
+    <RULE NUMBER="15" TEXT="IF (throttle IS mid) AND (rpm IS mid) THEN load IS between" />
+    <RULE NUMBER="16" TEXT="IF (throttle IS low) AND (rpm IS high) THEN load IS decreasing" />
+    <RULE NUMBER="17" TEXT="IF (throttle IS veryhigh) AND (rpm IS high) THEN load IS turbo" />
+    <RULE NUMBER="18" TEXT="IF (throttle IS verylow) AND (rpm IS idle) THEN load IS slightincreasing" />
+    <RULE NUMBER="19" TEXT="IF (throttle IS verylow) AND (rpm IS idletoolow) THEN load IS slightincreasing" />
+    <RULE NUMBER="20" TEXT="IF (throttle IS verylow) AND (rpm IS idletoohigh) THEN load IS slightdecreasing" />
+    <RULE NUMBER="21" TEXT="IF (throttle IS low) AND (rpm IS idle) THEN load IS between" />
+    <RULE NUMBER="22" TEXT="IF (throttle IS veryhigh) AND (rpm IS idle) THEN load IS increasing" />
+  </RULEBLOCK>
+</FUNCTION_BLOCK>

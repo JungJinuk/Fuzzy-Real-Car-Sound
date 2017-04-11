@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<FUNCTION_BLOCK>
+  <VAR_INPUT NAME="load" TYPE="REAL" RANGE="-100 151" />
+  <VAR_INPUT NAME="rpm" TYPE="REAL" RANGE="-1 11000" />
+  <VAR_OUTPUT NAME="volume" TYPE="REAL" RANGE="-25 125" />
+  <FUZZIFY NAME="load">
+    <TERM NAME="low" POINTS="-60 -25 -25 10" />
+    <TERM NAME="verylow" POINTS="-100 -75 -75 -40" />
+    <TERM NAME="mid" POINTS="-10 25 25 60" />
+    <TERM NAME="high" POINTS="40 75 75 151" />
+  </FUZZIFY>
+  <FUZZIFY NAME="rpm">
+    <TERM NAME="verylow" POINTS="-1 900 900 1300" />
+    <TERM NAME="low" POINTS="950 2000 2000 3000" />
+    <TERM NAME="mid" POINTS="2500 4000 4000 6000" />
+    <TERM NAME="high" POINTS="5000 7500 7500 11000" />
+  </FUZZIFY>
+  <DEFUZZIFY METHOD="CoG" ACCU="MAX" NAME="volume">
+    <TERM NAME="verylow" POINTS="-25 0 0 25" />
+    <TERM NAME="low" POINTS="0 25 25 50" />
+    <TERM NAME="mid" POINTS="25 50 50 75" />
+    <TERM NAME="high" POINTS="50 75 75 100" />
+    <TERM NAME="veryhigh" POINTS="75 100 100 125" />
+  </DEFUZZIFY>
+  <RULEBLOCK AND="MIN" OR="MAX">
+    <RULE NUMBER="1" TEXT="IF (load IS low) AND (rpm IS low) THEN volume IS low" />
+    <RULE NUMBER="2" TEXT="IF (load IS low) AND (rpm IS mid) THEN volume IS low" />
+    <RULE NUMBER="3" TEXT="IF (load IS low) AND (rpm IS high) THEN volume IS verylow" />
+    <RULE NUMBER="4" TEXT="IF (load IS mid) AND (rpm IS low) THEN volume IS verylow" />
+    <RULE NUMBER="5" TEXT="IF (load IS mid) AND (rpm IS mid) THEN volume IS verylow" />
+    <RULE NUMBER="6" TEXT="IF (load IS mid) AND (rpm IS high) THEN volume IS verylow" />
+    <RULE NUMBER="7" TEXT="IF (load IS high) AND (rpm IS low) THEN volume IS verylow" />
+    <RULE NUMBER="8" TEXT="IF (load IS high) AND (rpm IS mid) THEN volume IS verylow" />
+    <RULE NUMBER="9" TEXT="IF (load IS high) AND (rpm IS high) THEN volume IS verylow" />
+    <RULE NUMBER="10" TEXT="IF (load IS low) AND (rpm IS verylow) THEN volume IS verylow" />
+    <RULE NUMBER="11" TEXT="IF (load IS mid) AND (rpm IS verylow) THEN volume IS verylow" />
+    <RULE NUMBER="12" TEXT="IF (load IS high) AND (rpm IS verylow) THEN volume IS verylow" />
+    <RULE NUMBER="13" TEXT="IF (load IS verylow) AND (rpm IS verylow) THEN volume IS verylow" />
+    <RULE NUMBER="14" TEXT="IF (load IS verylow) AND (rpm IS low) THEN volume IS mid" />
+    <RULE NUMBER="15" TEXT="IF (load IS verylow) AND (rpm IS mid) THEN volume IS high" />
+    <RULE NUMBER="16" TEXT="IF (load IS verylow) AND (rpm IS high) THEN volume IS mid" />
+  </RULEBLOCK>
+</FUNCTION_BLOCK>
